@@ -46,7 +46,7 @@ class DeviceRepository:
                 await session.rollback()
                 raise e
 
-    async def update_device(self, device_id: int, device: Device):
+    async def update_device(device_id: int, device: Device):
         async with get_db() as session:
             try:
                 stmt = (
@@ -58,7 +58,21 @@ class DeviceRepository:
                 await session.rollback()
                 raise e
 
-    async def unregister_device(self, device_id: int):
+    async def register_device(device: Device, user_id: int):
+        async with get_db() as session:
+            try:
+                stmt = (
+                    update(Device)
+                    .where(Device.device_id == device.device_id)
+                    .values(user_id=user_id)
+                )
+                await session.execute(stmt)
+                await session.commit()
+            except SQLAlchemyError as e:
+                await session.rollback()
+                raise e
+
+    async def unregister_device(device_id: int):
         async with get_db() as session:
             try:
                 stmt = (

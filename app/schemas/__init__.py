@@ -6,7 +6,7 @@ from pydantic import BaseModel, StringConstraints, Field, field_validator
 
 
 # Device
-class CreateDevice(BaseModel):
+class RegisterDevice(BaseModel):
     device_id: UUID
 
 
