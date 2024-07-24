@@ -60,6 +60,17 @@ class ThermostatSchedule(BaseModel):
         return schedule
 
 
+# Device auth
+class AuthRequest(BaseModel):
+    device_id: UUID
+    signature: str
+
+
+class AuthChallenge(BaseModel):
+    challenge: str
+    device_id: UUID
+
+
 # JWT
 class Token(BaseModel):
     access_token: str

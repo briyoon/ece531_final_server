@@ -1,0 +1,4 @@
+from repositories.user_repository import UserRepository
+from repositories.device_repository import DeviceRepository
+from repositories.report_repository import ReportRepository
+from repositories.challenge_repository import ChallengeRepository
