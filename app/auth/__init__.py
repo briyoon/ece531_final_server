@@ -130,3 +130,9 @@ async def get_device_from_token(token: Annotated[str, Depends(oauth2scheme)]):
         raise credentials_exception
 
     return device
+
+
+async def get_admin_user(user: User = Depends(get_user_from_token)):
+    if not user.is_admin:
+        raise HTTPException(status_code=403, detail="User is not an admin")
+    return user

@@ -12,8 +12,8 @@ from schemas import Token, AuthChallenge, AuthRequest
 from repositories import DeviceRepository, ChallengeRepository
 from auth import authenticate_user, authenticate_device, create_access_token
 
-load_dotenv()
-JWT_EXPIRE_MINUTES = int(os.getenv("JWT_EXPIRATION_MINUTES"))
+load_dotenv("")
+JWT_EXPIRE_MINUTES = int(os.getenv("JWT_LENGTH_MINUTES"))
 
 auth_router = APIRouter()
 

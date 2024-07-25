@@ -2,12 +2,17 @@ from typing import Annotated
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, StringConstraints, Field, field_validator
+from pydantic import BaseModel, Field, field_validator
 
 
 # Device
-class RegisterDevice(BaseModel):
+class DeviceSchema(BaseModel):
     device_id: UUID
+    public_key: str
+    user_id: UUID
+    schedule: dict
+    register_timestamp: datetime
+    creation_timestamp: datetime
 
 
 class ThermostatReport(BaseModel):
@@ -17,7 +22,7 @@ class ThermostatReport(BaseModel):
 
 
 class TimeSlot(BaseModel):
-    time: Annotated[str, StringConstraints(regex=r"^\d{2}:\d{2}$")]
+    time: Annotated[str, Field(pattern=r"^\d{2}:\d{2}$")]
     temperature: Annotated[int, Field(ge=0, le=40)]
 
     @field_validator("time")
@@ -32,9 +37,7 @@ class TimeSlot(BaseModel):
 class DaySchedule(BaseModel):
     day: Annotated[
         str,
-        StringConstraints(
-            regex=r"^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)$"
-        ),
+        Field(pattern=r"^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)$"),
     ]
     slots: list[TimeSlot]
 
@@ -86,6 +89,9 @@ class DeviceToken(BaseModel):
 
 
 # User
-class CreateUser(BaseModel):
+class UserSchema(BaseModel):
+    user_id: UUID
     email: str
-    password: str
+    hashed_password: str
+    creation_timestamp: datetime
+    is_admin: bool

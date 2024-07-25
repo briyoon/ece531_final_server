@@ -123,3 +123,13 @@ class DeviceRepository:
                 return ThermostatSchedule.model_validate_json(schedule_json)
             except SQLAlchemyError as e:
                 raise e
+
+    @staticmethod
+    async def get_all_devices() -> list[Device]:
+        async with get_db() as session:
+            try:
+                stmt = select(Device)
+                result = await session.execute(stmt)
+                return result.scalars().all()
+            except SQLAlchemyError as e:
+                raise e

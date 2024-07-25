@@ -1,7 +1,7 @@
 from datetime import datetime
 import uuid
 
-from sqlalchemy import Column, ForeignKey, String, DateTime, UUID, Boolean, JSON
+from sqlalchemy import Column, ForeignKey, String, DateTime, UUID, Boolean, JSON, Float
 from sqlalchemy.orm import DeclarativeBase, mapped_column, Mapped, relationship
 
 
@@ -21,6 +21,7 @@ class User(Base):
         DateTime, nullable=False, default=datetime.now
     )
     devices: Mapped[list["Device"]] = relationship("Device", back_populates="user")
+    is_admin: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
 
 class Device(Base):
@@ -49,7 +50,7 @@ class Report(Base):
     )
     user_id: Mapped[uuid.UUID] = mapped_column(UUID, ForeignKey("user.user_id"))
     device_id: Mapped[uuid.UUID] = mapped_column(UUID, ForeignKey("device.device_id"))
-    temperature_celcius: Mapped[float] = mapped_column(float, nullable=False)
+    temperature_celcius: Mapped[float] = mapped_column(Float, nullable=False)
     heater_on: Mapped[bool] = mapped_column(Boolean, nullable=False)
     timestamp: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
