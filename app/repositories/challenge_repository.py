@@ -11,6 +11,7 @@ from database import get_db
 class ChallengeRepository:
     """Stateless collection of DB access functions for Challenge model"""
 
+    @staticmethod
     async def create_challenge(device_id: UUID, challenge: str, expires_at: datetime):
         async with get_db() as session:
             try:
@@ -23,6 +24,7 @@ class ChallengeRepository:
                 await session.rollback()
                 raise e
 
+    @staticmethod
     async def get_challenge(device_id: UUID) -> Challenge:
         async with get_db() as session:
             try:
@@ -32,6 +34,7 @@ class ChallengeRepository:
             except SQLAlchemyError as e:
                 raise e
 
+    @staticmethod
     async def delete_challenge(device_id: UUID):
         async with get_db() as session:
             try:

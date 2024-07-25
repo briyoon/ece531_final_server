@@ -8,6 +8,7 @@ from models import Report
 class ReportRepository:
     """Stateless collection of DB access functions for Report model"""
 
+    @staticmethod
     async def create_report(report: Report):
         async with get_db() as session:
             try:
@@ -17,6 +18,7 @@ class ReportRepository:
                 await session.rollback()
                 raise e
 
+    @staticmethod
     async def get_user_reports(user_id: int) -> list[Report]:
         async with get_db() as session:
             try:
@@ -26,6 +28,7 @@ class ReportRepository:
             except SQLAlchemyError as e:
                 raise e
 
+    @staticmethod
     async def get_device_reports(device_id: int) -> list[Report]:
         async with get_db() as session:
             try:

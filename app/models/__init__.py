@@ -1,8 +1,8 @@
 from datetime import datetime
 import uuid
 
-from sqlalchemy import ForeignKey, String, DateTime, UUID, Boolean
-from sqlalchemy.orm import DeclarativeBase, mapped_column, Mapped
+from sqlalchemy import Column, ForeignKey, String, DateTime, UUID, Boolean, JSON
+from sqlalchemy.orm import DeclarativeBase, mapped_column, Mapped, relationship
 
 
 class Base(DeclarativeBase):
@@ -20,6 +20,7 @@ class User(Base):
     creation_timestamp: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, default=datetime.now
     )
+    devices: Mapped[list["Device"]] = relationship("Device", back_populates="user")
 
 
 class Device(Base):
@@ -32,10 +33,12 @@ class Device(Base):
     user_id: Mapped[uuid.UUID] = mapped_column(
         UUID, ForeignKey("user.user_id"), nullable=True
     )  # if device is not registered, user_id is None
+    schedule: Mapped[dict] = mapped_column(JSON, nullable=True)
     register_timestamp: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     creation_timestamp: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, default=datetime.now
     )
+    user: Mapped["User"] = relationship("User", back_populates="devices")
 
 
 class Report(Base):

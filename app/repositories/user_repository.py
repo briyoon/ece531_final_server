@@ -8,6 +8,7 @@ from models import User
 class UserRepository:
     """Stateless collection of DB access functions for User model"""
 
+    @staticmethod
     async def create_user(user: User):
         async with get_db() as session:
             try:
@@ -17,16 +18,20 @@ class UserRepository:
                 await session.rollback()
                 raise e
 
+    @staticmethod
     async def get_user_by_email(email: str):
         async with get_db() as session:
             try:
-                user = await session.get(User, email)
+                stmt = select(User).filter_by(email=email)
+                result = await session.execute(stmt)
+                user = result.scalars().first()
                 if user is None:
                     raise ValueError(f"User with email {email} not found")
                 return user
             except SQLAlchemyError as e:
                 raise e
 
+    @staticmethod
     async def get_user_by_id(user_id: int) -> User:
         async with get_db() as session:
             try:
@@ -37,6 +42,7 @@ class UserRepository:
             except SQLAlchemyError as e:
                 raise e
 
+    @staticmethod
     async def get_all_users() -> list[User]:
         async with get_db() as session:
             try:
@@ -46,9 +52,13 @@ class UserRepository:
             except SQLAlchemyError as e:
                 raise e
 
+    @staticmethod
     async def delete_user_by_id(user_id: int):
         async with get_db() as session:
             try:
+                user = await session.get(User, user_id)
+                if user is None:
+                    raise ValueError(f"User with id {user_id} not found")
                 await session.delete(User, user_id)
                 await session.commit()
             except SQLAlchemyError as e:
