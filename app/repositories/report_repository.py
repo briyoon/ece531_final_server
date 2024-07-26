@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import select
 
@@ -19,7 +21,7 @@ class ReportRepository:
                 raise e
 
     @staticmethod
-    async def get_user_reports(user_id: int) -> list[Report]:
+    async def get_user_reports(user_id: UUID) -> list[Report]:
         async with get_db() as session:
             try:
                 stmt = select(Report).filter(Report.user_id == user_id)
@@ -29,7 +31,7 @@ class ReportRepository:
                 raise e
 
     @staticmethod
-    async def get_device_reports(device_id: int) -> list[Report]:
+    async def get_device_reports(device_id: UUID) -> list[Report]:
         async with get_db() as session:
             try:
                 stmt = select(Report).filter(Report.device_id == device_id)

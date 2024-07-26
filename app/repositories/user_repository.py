@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import select
 
@@ -32,7 +34,7 @@ class UserRepository:
                 raise e
 
     @staticmethod
-    async def get_user_by_id(user_id: int) -> User:
+    async def get_user_by_id(user_id: UUID) -> User:
         async with get_db() as session:
             try:
                 user = await session.get(User, user_id)
@@ -53,19 +55,19 @@ class UserRepository:
                 raise e
 
     @staticmethod
-    async def delete_user_by_id(user_id: int):
+    async def delete_user_by_id(user_id: UUID):
         async with get_db() as session:
             try:
                 user = await session.get(User, user_id)
                 if user is None:
                     raise ValueError(f"User with id {user_id} not found")
-                await session.delete(User, user_id)
+                await session.delete(user)
                 await session.commit()
             except SQLAlchemyError as e:
                 await session.rollback()
                 raise e
 
-    # async def update_user(self, user_id: int, user: User):
+    # async def update_user(self, user_id: UUID, user: User):
     #     async with get_db() as session:
     #         stmt = select(User).filter(User.user_id == user_id)
     #         await session.execute(stmt)

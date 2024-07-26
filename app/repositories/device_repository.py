@@ -1,3 +1,6 @@
+from uuid import UUID
+from datetime import datetime
+
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import select, update
 
@@ -20,7 +23,7 @@ class DeviceRepository:
                 raise e
 
     @staticmethod
-    async def get_users_devices(user_id: int) -> list[Device]:
+    async def get_users_devices(user_id: UUID) -> list[Device]:
         async with get_db() as session:
             try:
                 stmt = select(Device).filter(Device.user_id == user_id)
@@ -30,7 +33,7 @@ class DeviceRepository:
                 raise e
 
     @staticmethod
-    async def get_device_by_id(device_id: int):
+    async def get_device_by_id(device_id: UUID):
         async with get_db() as session:
             try:
                 device = await session.get(Device, device_id)
@@ -42,24 +45,24 @@ class DeviceRepository:
                 raise e
 
     @staticmethod
-    async def delete_device_by_id(device_id: int):
+    async def delete_device_by_id(device_id: UUID):
         async with get_db() as session:
             try:
                 device = await session.get(Device, device_id)
                 if device is None:
                     raise ValueError(f"Device with id {device_id} not found")
-                await session.delete(Device, device_id)
+                await session.delete(device)
                 await session.commit()
             except SQLAlchemyError as e:
                 await session.rollback()
                 raise e
 
     @staticmethod
-    async def update_device(device_id: int, device: Device):
+    async def update_device(device_id: UUID, device: Device):
         async with get_db() as session:
             try:
                 stmt = (
-                    update(Device).where(Device.device_id == device_id).values(device)
+                    update(Device).where(Device.device_id == device_id).values(**device)
                 )
                 await session.execute(stmt)
                 await session.commit()
@@ -68,13 +71,13 @@ class DeviceRepository:
                 raise e
 
     @staticmethod
-    async def register_device(device: Device, user_id: int):
+    async def register_device(device_id: UUID, user_id: UUID):
         async with get_db() as session:
             try:
                 stmt = (
                     update(Device)
-                    .where(Device.device_id == device.device_id)
-                    .values(user_id=user_id)
+                    .where(Device.device_id == device_id)
+                    .values(user_id=user_id, register_timestamp=datetime.now())
                 )
                 await session.execute(stmt)
                 await session.commit()
@@ -83,7 +86,7 @@ class DeviceRepository:
                 raise e
 
     @staticmethod
-    async def unregister_device(device_id: int):
+    async def unregister_device(device_id: UUID):
         async with get_db() as session:
             try:
                 stmt = (
@@ -98,7 +101,7 @@ class DeviceRepository:
                 raise e
 
     @staticmethod
-    async def update_device_schedule(device_id: int, schedule: ThermostatSchedule):
+    async def update_device_schedule(device_id: UUID, schedule: ThermostatSchedule):
         async with get_db() as session:
             try:
                 schedule_json = schedule.model_dump_json()
@@ -114,13 +117,16 @@ class DeviceRepository:
                 raise e
 
     @staticmethod
-    async def get_device_schedule(device_id: int):
+    async def get_device_schedule(device_id: UUID):
         async with get_db() as session:
             try:
                 stmt = select(Device.schedule).filter(Device.device_id == device_id)
                 result = await session.execute(stmt)
                 schedule_json = result.scalars().first()
-                return ThermostatSchedule.model_validate_json(schedule_json)
+                try:
+                    return ThermostatSchedule.model_validate_json(schedule_json)
+                except:
+                    return None
             except SQLAlchemyError as e:
                 raise e
 

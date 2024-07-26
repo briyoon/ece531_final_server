@@ -6,13 +6,23 @@ from pydantic import BaseModel, Field, field_validator
 
 
 # Device
-class DeviceSchema(BaseModel):
+class DeviceInDB(BaseModel):
     device_id: UUID
     public_key: str
     user_id: UUID
     schedule: dict
     register_timestamp: datetime
     creation_timestamp: datetime
+
+
+class CreateDevice(BaseModel):
+    device_id: UUID
+    public_key_b64: str
+
+
+class RegisterDevice(BaseModel):
+    device_id: UUID
+    user_id: UUID
 
 
 class ThermostatReport(BaseModel):
@@ -89,9 +99,21 @@ class DeviceToken(BaseModel):
 
 
 # User
-class UserSchema(BaseModel):
+class UserInDB(BaseModel):
     user_id: UUID
     email: str
     hashed_password: str
     creation_timestamp: datetime
     is_admin: bool
+
+
+class CreateUser(BaseModel):
+    email: str
+    password: str
+    is_admin: bool = False
+
+
+class UserDevice(BaseModel):
+    device_id: UUID
+    user_id: UUID
+    schedule: ThermostatSchedule | None

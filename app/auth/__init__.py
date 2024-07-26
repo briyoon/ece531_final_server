@@ -23,7 +23,7 @@ load_dotenv()
 JWT_SECRET = str(os.getenv("JWT_SECRET"))
 JWT_ALGORITHM = str(os.getenv("JWT_ALGO"))
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2scheme = OAuth2PasswordBearer(tokenUrl="api/v1/auth/login")
+oauth2scheme = OAuth2PasswordBearer(tokenUrl="api/v1/auth/user/login")
 
 
 def verify_password(plain_password, hashed_password):

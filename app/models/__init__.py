@@ -1,7 +1,7 @@
 from datetime import datetime
 import uuid
 
-from sqlalchemy import Column, ForeignKey, String, DateTime, UUID, Boolean, JSON, Float
+from sqlalchemy import ForeignKey, DateTime, UUID, Boolean, JSON, Float, Text
 from sqlalchemy.orm import DeclarativeBase, mapped_column, Mapped, relationship
 
 
@@ -15,8 +15,8 @@ class User(Base):
     user_id: Mapped[uuid.UUID] = mapped_column(
         UUID, primary_key=True, default=uuid.uuid4
     )
-    email: Mapped[str] = mapped_column(String, unique=True, nullable=False)
-    hashed_password: Mapped[str] = mapped_column(String, nullable=False)
+    email: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
+    hashed_password: Mapped[str] = mapped_column(Text, nullable=False)
     creation_timestamp: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, default=datetime.now
     )
@@ -30,12 +30,12 @@ class Device(Base):
     device_id: Mapped[uuid.UUID] = mapped_column(
         UUID, primary_key=True, default=uuid.uuid4
     )
-    public_key: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+    public_key: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
     user_id: Mapped[uuid.UUID] = mapped_column(
         UUID, ForeignKey("user.user_id"), nullable=True
     )  # if device is not registered, user_id is None
     schedule: Mapped[dict] = mapped_column(JSON, nullable=True)
-    register_timestamp: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    register_timestamp: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     creation_timestamp: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, default=datetime.now
     )
@@ -61,5 +61,5 @@ class Challenge(Base):
     device_id: Mapped[uuid.UUID] = mapped_column(
         UUID, ForeignKey("device.device_id"), primary_key=True
     )
-    challenge: Mapped[str] = mapped_column(String, nullable=False)
+    challenge: Mapped[str] = mapped_column(Text, nullable=False)
     expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
