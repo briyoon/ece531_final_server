@@ -1,12 +1,22 @@
+import time
+import random
+from datetime import datetime
 import httpx
 import base64
 import tomli
 import tomli_w
-from uuid import uuid4, UUID
-from pathlib import Path
+from uuid import uuid4
 from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey, RSAPublicKey
+from pydantic import BaseModel
+from fastapi.encoders import jsonable_encoder
+
+
+class ThermostatReport(BaseModel):
+    temperature_celcius: float
+    heater_on: bool
+    timestamp: datetime
 
 
 # Function to generate RSA key pair
@@ -43,7 +53,7 @@ def save_public_key_to_pub(public_key: RSAPublicKey, pub_file_path):
 async def test_routes(base_url: str, device_id: str, private_key: RSAPrivateKey):
     async with httpx.AsyncClient() as client:
         # Step 1: Get challenge
-        response = await client.get(f"{base_url}/device/challenge/{device_id}")
+        response = await client.get(f"{base_url}/auth/device/challenge/{device_id}")
         response.raise_for_status()
         challenge_data = response.json()
         challenge: str = challenge_data["challenge"]
@@ -64,13 +74,46 @@ async def test_routes(base_url: str, device_id: str, private_key: RSAPrivateKey)
             "device_id": str(device_id),
             "signature": signature_b64,
         }
-        response = await client.post(f"{base_url}/device/login", json=auth_request)
+        response = await client.post(f"{base_url}/auth/device/login", json=auth_request)
         response.raise_for_status()
         token_data = response.json()
         access_token = token_data["access_token"]
 
         print("Access Token:")
         print(access_token)
+
+        # Step 4: Get schedule
+        auth_header = {"Authorization": f"Bearer {access_token}"}
+        response = await client.get(f"{base_url}/device/schedule", headers=auth_header)
+        if response.status_code == 200:
+            print("Device schedule:", response.json())
+        else:
+            print(
+                f"Failed to get device schedule: {response.status_code}, {response.text}"
+            )
+
+        # Step 5: Create 10 reports
+        for _ in range(10):
+            temperature = random.randint(20, 30)  # Random temperature between 20 and 30
+            report_data = ThermostatReport(
+                temperature_celcius=temperature,
+                heater_on=True,
+                timestamp=datetime.now(),
+            )
+            print(report_data.model_dump_json())
+            # exit()
+            response = await client.post(
+                f"{base_url}/device/report",
+                json=jsonable_encoder(report_data),
+                headers=auth_header,
+            )
+            if response.status_code == 200:
+                print("Report created successfully.")
+            else:
+                print(
+                    f"Failed to create report: {response.status_code}, {response.text}"
+                )
+            time.sleep(1)
 
 
 if __name__ == "__main__":

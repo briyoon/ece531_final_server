@@ -9,9 +9,9 @@ from pydantic import BaseModel, Field, field_validator
 class DeviceInDB(BaseModel):
     device_id: UUID
     public_key: str
-    user_id: UUID
-    schedule: dict
-    register_timestamp: datetime
+    user_id: UUID | None
+    schedule: dict | None
+    register_timestamp: datetime | None
     creation_timestamp: datetime
 
 

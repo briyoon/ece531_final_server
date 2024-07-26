@@ -3,4 +3,4 @@ device_id = "bb896de1-dbea-47a1-9bb4-97d3aeacfaf7"
 pem_path = "private_key.pem"
 
 [server]
-base_url = "http://localhost:8000/api/v1/auth"
+base_url = "http://localhost:8000/api/v1"
