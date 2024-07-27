@@ -6,6 +6,7 @@ from auth import get_device_from_token
 from schemas import DeviceInDB, ThermostatReport
 from models import Report
 from repositories import DeviceRepository, ReportRepository
+from api.v1.user_router import connection_manager
 
 device_router = APIRouter(
     dependencies=[Depends(get_device_from_token)],
@@ -47,6 +48,9 @@ async def create_report(
             timestamp=report_data.timestamp,
         )
         await ReportRepository.create_report(report)
+        await connection_manager.send_message(
+            current_device.device_id, report_data.model_dump_json()
+        )
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:

@@ -101,10 +101,15 @@ class DeviceRepository:
                 raise e
 
     @staticmethod
-    async def update_device_schedule(device_id: UUID, schedule: ThermostatSchedule):
+    async def update_device_schedule(
+        device_id: UUID, schedule: ThermostatSchedule | None
+    ):
         async with get_db() as session:
             try:
-                schedule_json = schedule.model_dump_json()
+                if schedule is None:
+                    schedule_json = None
+                else:
+                    schedule_json = schedule.model_dump_json()
                 stmt = (
                     update(Device)
                     .where(Device.device_id == device_id)
