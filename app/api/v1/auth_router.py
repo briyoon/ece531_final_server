@@ -64,8 +64,13 @@ async def get_challenge(device_id: UUID):
         raise HTTPException(status_code=404, detail="Device not found")
 
     challenge_info: Challenge = await ChallengeRepository.get_challenge(device_id)
-    if challenge_info and challenge_info.expires_at > datetime.now():
-        return AuthChallenge(challenge=challenge_info.challenge, device_id=device_id)
+    if challenge_info:
+        if challenge_info.expires_at > datetime.now():
+            return AuthChallenge(
+                challenge=challenge_info.challenge, device_id=device_id
+            )
+        else:
+            await ChallengeRepository.delete_challenge(device_id)
 
     challenge = uuid4().hex
     expires_at = datetime.now() + timedelta(minutes=5)

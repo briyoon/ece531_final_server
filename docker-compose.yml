@@ -1,0 +1,30 @@
+services:
+  thermy-server:
+    build: .
+    container_name: thermy-server
+    depends_on:
+      - db
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}
+    networks:
+      - traefik-network
+
+  db:
+    image: postgres:16
+    container_name: postgres_db
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - traefik-network
+
+volumes:
+  postgres_data:
+
+networks:
+  traefik-network:
+    external: true

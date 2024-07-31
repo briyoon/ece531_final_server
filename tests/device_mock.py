@@ -120,7 +120,7 @@ if __name__ == "__main__":
     import asyncio
 
     # Read configuration from config.toml
-    config_path = "config.toml"
+    config_path = "tests/config.toml"
 
     with open(config_path, "rb") as f:
         config = tomli.load(f)
